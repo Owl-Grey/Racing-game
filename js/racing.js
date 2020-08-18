@@ -3,7 +3,7 @@ let ctx = cvs.getContext("2d");
 
 let xpos = 100;
 let ypos = 520;
-let wdt = 240
+let wdt =240;
 let points = 0;
 var crash = new Audio();
 var score_audio = new Audio();
@@ -129,9 +129,14 @@ let car = [];
    y:0
  }
 function wdtx(){
-  let x = prompt("Какую ширину поля вы хотите, в пределах от 10 до 15?",0);
-  if (x<10 && x>15) {alert("Неверное заполнение"); sessionStorage.clear();}
-  else{wdt=x*20; console.log(wdt)}
+  if (!isNaN(sessionStorage.wdt)){wdt=Number(sessionStorage.wdt)}
+  else{
+  let x = prompt("Какую ширину поля вы хотите, в пределах от 10 до 15?");
+  x=Number(x);
+  if ((x<10)) {alert("Неверное заполнение"); location.reload();}
+  else if(x>15){{alert("Неверное заполнение"); location.reload();}}
+  else{wdt=x*20;sessionStorage.wdt=wdt}
+}
 }
 function main(){
 
@@ -158,7 +163,7 @@ drawlives();
    // }a
    if(car[i].y>600)
    {
-     setTimeout(car.push({x : randcord(20, wdt-40, 20),y : 0}), 5000);
+
      car.shift();
      car.push({
      x : randcord(20, wdt-40, 20),
@@ -187,10 +192,10 @@ if ((xpos+20==car[i].x)&&(ypos==car[i].y+40) ||
       sessionStorage.lives--;
       crash.play()
       if (confirm("Вы потеряли одну жизнь, желаете продолжить?")){location.reload();}
-      else{sessionStorage.lives--; sessionStorage.clear();}
+      else{sessionStorage.clear();location.reload();}
      }
     else if (confirm("Жизней больше нет, желаете повторить?")){sessionStorage.clear(); location.reload();}
-    else {sessionStorage.clear();}
+    else {sessionStorage.clear(); return 0; }
 }
 
 
