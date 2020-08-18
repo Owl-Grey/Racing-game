@@ -3,9 +3,16 @@ let ctx = cvs.getContext("2d");
 
 let xpos = 100;
 let ypos = 520;
-let car_count =1;
-let points = 0;
 
+let points = 0;
+var crash = new Audio();
+var score_audio = new Audio();
+var lvlup = new Audio();
+
+
+crash.src = "snd/crash.mp3"; // Указание нужной записи
+score_audio.src = "snd/score.mp3";
+lvlup.src = "snd/lvlup.mp3";// Аналогично
 // let xposc=100;
 // let yposc=50;
 speed = 1;
@@ -41,8 +48,9 @@ function moving(e) {
 
 
 function drawbg() {
+
   ctx.fillStyle = "rgba(178, 178, 178,1)";
-  for(let i = 0; i<=200; i+=20){
+  for(let i = 0; i<200; i+=20){
     for (let j = 0; j<=600; j+=20){
 
       ctx.fillRect(i,j,20,20);
@@ -50,18 +58,18 @@ function drawbg() {
       ctx.fillRect(i+5,j+5,10,10);
     }
   }
-
+  ctx.clearRect(201,0,120,600);
   }
   function drawlives() {
 
     ctx.fillStyle = "rgba(0, 0, 0, 1)";
     ctx.beginPath();
-    ctx.moveTo(221, 0);
-    ctx.lineTo(221, 600);
+    ctx.moveTo(201, 0);
+    ctx.lineTo(201, 600);
     ctx.stroke();
-    let lx=220;
+    let lx=200;
     let ly=120;
-    for(let n = 1; n<=localStorage.lives; n++){
+    for(let n = 1; n<=sessionStorage.lives; n++){
 
         ctx.fillRect(lx,ly,20,20);
         ctx.clearRect(lx+3,ly+3,14,14);
@@ -121,46 +129,65 @@ let car = [];
    y:0
  }
 
-function draw(){
-if (isNaN(localStorage.lives)) {localStorage.lives=5}
-if (isNaN(localStorage.HiScore)) {localStorage.HiScore=0}
+function main(){
+
+if (isNaN(sessionStorage.progress)) {sessionStorage.progress=0;}
+if (isNaN(sessionStorage.speed)||sessionStorage.speed==0) {sessionStorage.speed=1;}
+if (isNaN(sessionStorage.goal)) {sessionStorage.goal=sessionStorage.speed*10;}
+if (isNaN(sessionStorage.lives)) {sessionStorage.lives=5;}
+if (isNaN(localStorage.HiScore)) {localStorage.HiScore=0;}
+if (points>localStorage.HiScore) {localStorage.HiScore=points;}
 drawbg();
 drawlives();
   for(let i = 0; i < car.length; i++) {
    drawcars(car[i].x, car[i].y);
 
 
-    car[i].y+=speed;
+    car[i].y+=Number(sessionStorage.speed);
 
-   if(car[i].y > 400 && car_count<2) {
+   if(car[i].y == 400) {
 
    car.push({
    x : randcord(20, 180, 20),
    y : 0
    });
-   car_count++;
+
 
    }
-   if(car[i].y==520)
+   if(car[i].y>600)
    {
-     car_count-=1;
+     car.shift();
+     car.push({
+     x : randcord(20, 180, 20),
+     y : 0
+     });
      points+=10;
+     score_audio.play();
+     sessionStorage.progress++;
+     if (sessionStorage.progress == sessionStorage.goal)
+     {
+       sessionStorage.speed++;
+       lvlup.play()
+       sessionStorage.goal=sessionStorage.speed*10;
+     }
    }
 
 if ((xpos+20==car[i].x)&&(ypos==car[i].y+40) ||
     (xpos==car[i].x+20)&&(ypos==car[i].y+40) ||
     (xpos+40==car[i].x)&&(ypos+20==car[i].y+40) ||
     (xpos-20==car[i].x+20)&&(ypos+20==car[i].y+40) ||
+    ((xpos+40-car[i].x-20)<0)&&(ypos<=car[i].y && car[i]<620) ||
+    ((xpos-20-car[i].x+40)<0)&&(ypos<=car[i].y && car[i]<620) ||
     (xpos==car[i].x)&&(ypos==car[i].y+60)){
-    if (localStorage.lives!=0)
+    if (sessionStorage.lives!=0)
     {
-      localStorage.lives--;
-      console.log(localStorage.lives);
-      if (confirm("Вы проиграли, желаете продолжить?")){location.reload();}
-      else{speed=0}
+      sessionStorage.lives--;
+      crash.play()
+      if (confirm("Вы потеряли одну жизнь, желаете продолжить?")){location.reload();}
+      else{sessionStorage.lives--; sessionStorage.clear();}
      }
-    else if (confirm("Жизней больше нет, желаете повторить?")){localStorage.lives=5; location.reload();}
-    else {speed=0}
+    else if (confirm("Жизней больше нет, желаете повторить?")){sessionStorage.clear(); location.reload();}
+    else {sessionStorage.clear();}
 }
 
 
@@ -172,7 +199,13 @@ if ((xpos+20==car[i].x)&&(ypos==car[i].y+40) ||
 drawplayer();
 
 
-requestAnimationFrame(draw)
+ctx.font = "20px Times New Roman";
+ctx.fillText("Points" , 205, 20);
+ctx.fillText(points, 205, 40);
+ctx.fillText("HiScore"  , 205, 60);
+ctx.fillText(localStorage.HiScore, 205, 80);
+ctx.fillText("Goal: "+ sessionStorage.progress +"/"+ sessionStorage.goal, 205, 160);
+requestAnimationFrame(main)
 }
 
-requestAnimationFrame(draw)
+requestAnimationFrame(main)
