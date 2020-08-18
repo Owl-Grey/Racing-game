@@ -3,7 +3,7 @@ let ctx = cvs.getContext("2d");
 
 let xpos = 100;
 let ypos = 520;
-
+let wdt = 240
 let points = 0;
 var crash = new Audio();
 var score_audio = new Audio();
@@ -33,13 +33,13 @@ function moving(e) {
               if(xpos>20 && speed!=0){xpos-=20;}
               break;
           case 68:   // если нажата клавиша вверх
-              if(xpos<180 && speed!=0){xpos+=20;}
+              if(xpos<wdt-40 && speed!=0){xpos+=20;}
               break;
           case 37:  // если нажата клавиша влево
               if(xpos>20 && speed!=0){xpos-=20;}
                break;
           case 39:   // если нажата клавиша вверх
-              if(xpos<180 && speed!=0){xpos+=20;}
+              if(xpos<wdt-40 && speed!=0){xpos+=20;}
                break;
 
 }
@@ -50,7 +50,7 @@ function moving(e) {
 function drawbg() {
 
   ctx.fillStyle = "rgba(178, 178, 178,1)";
-  for(let i = 0; i<200; i+=20){
+  for(let i = 0; i<wdt; i+=20){
     for (let j = 0; j<=600; j+=20){
 
       ctx.fillRect(i,j,20,20);
@@ -58,16 +58,16 @@ function drawbg() {
       ctx.fillRect(i+5,j+5,10,10);
     }
   }
-  ctx.clearRect(201,0,120,600);
+  ctx.clearRect(wdt+1,0,cvs.width-wdt,600);
   }
   function drawlives() {
 
     ctx.fillStyle = "rgba(0, 0, 0, 1)";
     ctx.beginPath();
-    ctx.moveTo(201, 0);
-    ctx.lineTo(201, 600);
+    ctx.moveTo(wdt+1, 0);
+    ctx.lineTo(wdt+1, 600);
     ctx.stroke();
-    let lx=200;
+    let lx=wdt;
     let ly=120;
     for(let n = 1; n<=sessionStorage.lives; n++){
 
@@ -125,10 +125,14 @@ ctx.fillStyle = "rgba(0,0,0,1)";
 
 let car = [];
  car[0] = {
-   x:randcord(20, 180, 20),
+   x:randcord(20, wdt-40, 20),
    y:0
  }
-
+function wdtx(){
+  let x = prompt("Какую ширину поля вы хотите, в пределах от 10 до 15?",0);
+  if (x<10 && x>15) {alert("Неверное заполнение"); sessionStorage.clear();}
+  else{wdt=x*20; console.log(wdt)}
+}
 function main(){
 
 if (isNaN(sessionStorage.progress)) {sessionStorage.progress=0;}
@@ -139,26 +143,25 @@ if (isNaN(localStorage.HiScore)) {localStorage.HiScore=0;}
 if (points>localStorage.HiScore) {localStorage.HiScore=points;}
 drawbg();
 drawlives();
+// setTimeout(car.push({x : randcord(20, wdt-40, 20),y : 0}), 5000);
   for(let i = 0; i < car.length; i++) {
    drawcars(car[i].x, car[i].y);
 
 
     car[i].y+=Number(sessionStorage.speed);
 
-   if(car[i].y == 400) {
+   // if(car[i].y == 400) {
+   //
+   //
+   //
 
-   car.push({
-   x : randcord(20, 180, 20),
-   y : 0
-   });
-
-
-   }
+   // }a
    if(car[i].y>600)
    {
+     setTimeout(car.push({x : randcord(20, wdt-40, 20),y : 0}), 5000);
      car.shift();
      car.push({
-     x : randcord(20, 180, 20),
+     x : randcord(20, wdt-40, 20),
      y : 0
      });
      points+=10;
@@ -200,12 +203,12 @@ drawplayer();
 
 
 ctx.font = "20px Times New Roman";
-ctx.fillText("Points" , 205, 20);
-ctx.fillText(points, 205, 40);
-ctx.fillText("HiScore"  , 205, 60);
-ctx.fillText(localStorage.HiScore, 205, 80);
-ctx.fillText("Goal: "+ sessionStorage.progress +"/"+ sessionStorage.goal, 205, 160);
+ctx.fillText("Points" , wdt+5, 20);
+ctx.fillText(points, wdt+5, 40);
+ctx.fillText("HiScore"  , wdt+5, 60);
+ctx.fillText(localStorage.HiScore, wdt+5, 80);
+ctx.fillText("Goal: "+ sessionStorage.progress +"/"+ sessionStorage.goal, wdt+5, 160);
 requestAnimationFrame(main)
 }
-
+wdtx();
 requestAnimationFrame(main)
