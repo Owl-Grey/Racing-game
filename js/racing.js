@@ -1,14 +1,16 @@
-var cvs = document.getElementById("canvas");
-var ctx = cvs.getContext("2d");
+let cvs = document.getElementById("canvas");
+let ctx = cvs.getContext("2d");
 
-var xpos = 100;
-var ypos = 520;
-var car_count =1;
-// var xposc=100;
-// var yposc=50;
+let xpos = 100;
+let ypos = 520;
+let car_count =1;
+let points = 0;
+
+// let xposc=100;
+// let yposc=50;
 speed = 1;
 
-function randomNumber(min, max, num) {
+function randcord(min, max, num) {
     return Math.floor(Math.floor(Math.random() * (max - min + 1) + min) / num) * num;
 }
 function randomcar()
@@ -21,33 +23,54 @@ function moving(e) {
   switch(e.keyCode){
 
           case 65:  // если нажата клавиша влево
-              if(xpos>20){xpos-=20;}
+              if(xpos>20 && speed!=0){xpos-=20;}
               break;
           case 68:   // если нажата клавиша вверх
-              if(xpos<180){xpos+=20;}
+              if(xpos<180 && speed!=0){xpos+=20;}
               break;
           case 37:  // если нажата клавиша влево
-              if(xpos>20){xpos-=20;}
+              if(xpos>20 && speed!=0){xpos-=20;}
                break;
           case 39:   // если нажата клавиша вверх
-              if(xpos<180){xpos+=20;}
+              if(xpos<180 && speed!=0){xpos+=20;}
                break;
 
 }
 }
+
+
+
 function drawbg() {
-ctx.globalAlpha=0.3
   ctx.fillStyle = "rgba(178, 178, 178,1)";
-  for(var i = 0; i<=200; i+=20){
-    for (var j = 0; j<=600; j+=20){
+  for(let i = 0; i<=200; i+=20){
+    for (let j = 0; j<=600; j+=20){
 
       ctx.fillRect(i,j,20,20);
       ctx.clearRect(i+3,j+3,14,14);
       ctx.fillRect(i+5,j+5,10,10);
     }
   }
-  ctx.globalAlpha=1
+
   }
+  function drawlives() {
+
+    ctx.fillStyle = "rgba(0, 0, 0, 1)";
+    ctx.beginPath();
+    ctx.moveTo(221, 0);
+    ctx.lineTo(221, 600);
+    ctx.stroke();
+    let lx=220;
+    let ly=120;
+    for(let n = 1; n<=localStorage.lives; n++){
+
+        ctx.fillRect(lx,ly,20,20);
+        ctx.clearRect(lx+3,ly+3,14,14);
+        ctx.fillRect(lx+5,ly+5,10,10);
+        lx+=20;
+      }
+    }
+
+
 function drawplayer(){
 ctx.fillStyle = "rgba(0,0,0,1)";
 
@@ -92,15 +115,18 @@ ctx.fillStyle = "rgba(0,0,0,1)";
   ctx.fillRect(xposc-15,yposc-15,10,10);
 }
 
-var car = [];
+let car = [];
  car[0] = {
-   x:randomNumber(20, 180, 20),
+   x:randcord(20, 180, 20),
    y:0
  }
 
 function draw(){
+if (isNaN(localStorage.lives)) {localStorage.lives=5}
+if (isNaN(localStorage.HiScore)) {localStorage.HiScore=0}
 drawbg();
-  for(var i = 0; i < car.length; i++) {
+drawlives();
+  for(let i = 0; i < car.length; i++) {
    drawcars(car[i].x, car[i].y);
 
 
@@ -109,15 +135,35 @@ drawbg();
    if(car[i].y > 400 && car_count<2) {
 
    car.push({
-   x : randomNumber(20, 180, 20),
+   x : randcord(20, 180, 20),
    y : 0
    });
    car_count++;
 
    }
-   if(car[i].y==520 ){car_count-=1;
-console.log(car_count)
+   if(car[i].y==520)
+   {
+     car_count-=1;
+     points+=10;
    }
+
+if ((xpos+20==car[i].x)&&(ypos==car[i].y+40) ||
+    (xpos==car[i].x+20)&&(ypos==car[i].y+40) ||
+    (xpos+40==car[i].x)&&(ypos+20==car[i].y+40) ||
+    (xpos-20==car[i].x+20)&&(ypos+20==car[i].y+40) ||
+    (xpos==car[i].x)&&(ypos==car[i].y+60)){
+    if (localStorage.lives!=0)
+    {
+      localStorage.lives--;
+      console.log(localStorage.lives);
+      if (confirm("Вы проиграли, желаете продолжить?")){location.reload();}
+      else{speed=0}
+     }
+    else if (confirm("Жизней больше нет, желаете повторить?")){localStorage.lives=5; location.reload();}
+    else {speed=0}
+}
+
+
 }
 
 
