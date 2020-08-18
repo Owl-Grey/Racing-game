@@ -3,20 +3,35 @@ var ctx = cvs.getContext("2d");
 
 var xpos = 100;
 var ypos = 520;
-var xposc=100;
-var yposc=50;
+var car_count =1;
+// var xposc=100;
+// var yposc=50;
 speed = 1;
+
+function randomNumber(min, max, num) {
+    return Math.floor(Math.floor(Math.random() * (max - min + 1) + min) / num) * num;
+}
+function randomcar()
+{
+
+}
 document.addEventListener("keydown", moving);
 
 function moving(e) {
   switch(e.keyCode){
 
           case 65:  // если нажата клавиша влево
-              xpos-=20;
+              if(xpos>20){xpos-=20;}
               break;
           case 68:   // если нажата клавиша вверх
-            xpos+=20
+              if(xpos<180){xpos+=20;}
               break;
+          case 37:  // если нажата клавиша влево
+              if(xpos>20){xpos-=20;}
+               break;
+          case 39:   // если нажата клавиша вверх
+              if(xpos<180){xpos+=20;}
+               break;
 
 }
 }
@@ -55,10 +70,10 @@ ctx.fillStyle = "rgba(0,0,0,1)";
   ctx.fillRect(xpos+25,ypos+65,10,10);
 }
 
-function drawcars(){
+function drawcars(xposc,yposc){
 
 ctx.fillStyle = "rgba(0,0,0,1)";
-  yposc+=speed;
+
 
   ctx.fillRect(xposc-20,yposc+20,60,20);
   ctx.clearRect(xposc-17,yposc+23,54,14);
@@ -77,9 +92,37 @@ ctx.fillStyle = "rgba(0,0,0,1)";
   ctx.fillRect(xposc-15,yposc-15,10,10);
 }
 
+var car = [];
+ car[0] = {
+   x:randomNumber(20, 180, 20),
+   y:0
+ }
+
 function draw(){
 drawbg();
-drawcars();
+  for(var i = 0; i < car.length; i++) {
+   drawcars(car[i].x, car[i].y);
+
+
+    car[i].y+=speed;
+
+   if(car[i].y > 400 && car_count<2) {
+
+   car.push({
+   x : randomNumber(20, 180, 20),
+   y : 0
+   });
+   car_count++;
+
+   }
+   if(car[i].y==520 ){car_count-=1;
+console.log(car_count)
+   }
+}
+
+
+
+// drawcars();
 drawplayer();
 
 
